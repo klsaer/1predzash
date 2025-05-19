@@ -1,4 +1,11 @@
 <x-guest-layout>
+    <!-- Кнопка возврата на главную -->
+    <div class="absolute top-4 left-4">
+        <a href="{{ url('/') }}" class="text-gray-600 hover:text-gray-900">
+            ← На главную
+        </a>
+    </div>
+
     <form method="POST" action="{{ route('register') }}">
         @csrf
 

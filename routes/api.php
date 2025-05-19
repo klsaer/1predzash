@@ -2,6 +2,12 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\PlaylistController;
+
+Route::middleware('auth:sanctum')->group(function() {
+    Route::get('/playlists', [PlaylistController::class, 'apiIndex'])->middleware('auth:sanctum');
+    Route::post('/playlists/{playlist}/songs', [PlaylistController::class, 'addSong']);
+});
 
 /*
 |--------------------------------------------------------------------------
