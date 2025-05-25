@@ -56,37 +56,11 @@
 
             <!-- Main Content -->
             <div class="main-content flex-1 p-8 overflow-y-auto">
-                <!-- Добавляем панель управления плеером -->
-                <div class="player-bar fixed bottom-0 left-0 right-0 bg-gray-900 p-4 flex items-center">
-                    <div class="flex-1 flex items-center">
-                        <button id="play-pause" class="bg-transparent text-white p-2 rounded-full hover:bg-gray-700 mr-4">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path id="play-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
-                                <path id="pause-icon" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"></path>
-                            </svg>
-                        </button>
-                        <div class="text-white text-sm">
-                            <div id="now-playing">Не воспроизводится</div>
-                            <div class="flex items-center mt-1">
-                                <span id="current-time">0:00</span>
-                                <input type="range" id="progress" class="mx-2 w-64" value="0">
-                                <span id="duration">0:00</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="volume-control flex items-center">
-                        <svg class="w-5 h-5 text-white mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M12 6a7.975 7.975 0 015.657 2.343m0 0a7.975 7.975 0 010 11.314m-11.314 0a7.975 7.975 0 010-11.314m0 0a7.975 7.975 0 015.657-2.343"></path>
-                        </svg>
-                        <input type="range" id="volume" class="w-24" min="0" max="1" step="0.1" value="0.7">
-                    </div>
-                </div>
-
                 <div class="mb-8">
                     <h2 class="text-2xl font-bold mb-6">Популярные треки</h2>
                     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                         @foreach(App\Models\Song::all() as $song)
-                        <div class="card p-4 rounded-lg relative group" onclick="playSong('{{ asset($song->audio_path) }}', '{{ $song->title }}', '{{ $song->artist }}')">
+                        <div class="card p-4 rounded-lg relative group" onclick="playSong('{{ asset($song->audio_path) }}', '{{ $song->title }}', '{{ $song->artist }}', '{{ $song->cover_path ? asset($song->cover_path) : '' }}')">
                             <div class="relative mb-4">
                                 @if($song->cover_path)
                                 <img src="{{ asset($song->cover_path) }}" alt="Album Cover" class="w-full rounded shadow-lg">
@@ -106,20 +80,61 @@
             </div>
         </div>
 
+        <!-- Player Controls -->
+        <div id="player-controls">
+            <div class="flex items-center justify-between w-full">
+                <div class="flex items-center space-x-3">
+                    <div id="now-playing-cover" class="flex-shrink-0"></div>
+                    <div class="min-w-0">
+                        <div id="now-playing" class="text-white font-medium truncate">Не воспроизводится</div>
+                        <div id="now-playing-artist" class="text-gray-400 text-sm truncate"></div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-6">
+                    <button id="prev-btn" class="text-gray-400 hover:text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <button id="play-pause">
+                        <svg id="play-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
+                        </svg>
+                        <svg id="pause-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </button>
+                    <button id="next-btn" class="text-gray-400 hover:text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                    <div class="flex items-center space-x-3 w-32">
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 010-7.072m0 0a5 5 0 107.072 0"/>
+                        </svg>
+                        <input id="volume" type="range" min="0" max="1" step="0.01" value="0.7" class="flex-1">
+                        <span id="volume-value" class="text-xs text-gray-400 w-8">70%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-3 flex items-center justify-center space-x-3 w-full">
+                <span id="current-time" class="text-xs text-gray-400 w-10 text-right">0:00</span>
+                <input id="progress" type="range" min="0" max="100" value="0" class="flex-1">
+                <span id="duration" class="text-xs text-gray-400 w-10">0:00</span>
+            </div>
+        </div>
+
         <script>
-            let sound = null;
+            let audio = null;
             let currentSong = null;
-            let isSeeking = false;
             
-            function formatTime(secs) {
-                const minutes = Math.floor(secs / 60) || 0;
-                const seconds = Math.floor(secs % 60) || 0;
-                return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-            }
-            
-            function playSong(songUrl, songTitle, songArtist) {
-                if (sound) {
-                    sound.stop();
+            async function playSong(songUrl, songTitle, songArtist, songCover) {
+                if (audio) {
+                    audio.pause();
+                    URL.revokeObjectURL(audio.src);
                 }
                 
                 document.querySelectorAll('.playing').forEach(el => {
@@ -128,91 +143,112 @@
                 
                 event.currentTarget.classList.add('playing');
                 
-                sound = new Howl({
-                    src: [songUrl],
-                    html5: true,
-                    volume: document.getElementById('volume').value,
-                    onplay: function() {
-                        document.getElementById('play-icon').classList.add('hidden');
-                        document.getElementById('pause-icon').classList.remove('hidden');
-                        document.getElementById('now-playing').textContent = `${songTitle} - ${songArtist}`;
-                        updateProgress();
-                    },
-                    onpause: function() {
-                        document.getElementById('play-icon').classList.remove('hidden');
-                        document.getElementById('pause-icon').classList.add('hidden');
-                    },
-                    onend: function() {
-                        resetPlayerUI();
-                    },
-                    onstop: function() {
-                        resetPlayerUI();
-                    },
-                    onseek: function() {
-                        isSeeking = false;
-                        updateProgress();
+                try {
+                    const response = await fetch(songUrl);
+                    const blob = await response.blob();
+                    const blobUrl = URL.createObjectURL(blob);
+                    
+                    audio = new Audio(blobUrl);
+                    
+                    // Update cover image
+                    const coverElement = document.getElementById('now-playing-cover');
+                    if (songCover) {
+                        coverElement.innerHTML = `<img src="${songCover}" alt="Cover">`;
+                        coverElement.style.backgroundColor = 'transparent';
+                    } else {
+                        coverElement.innerHTML = '';
+                        coverElement.style.backgroundColor = '#383838';
                     }
-                });
-                
-                sound.play();
-                currentSong = {url: songUrl, title: songTitle, artist: songArtist};
-            }
-            
-            function resetPlayerUI() {
-                document.getElementById('play-icon').classList.remove('hidden');
-                document.getElementById('pause-icon').classList.add('hidden');
-                document.getElementById('progress').value = 0;
-                document.getElementById('current-time').textContent = '0:00';
+                    audio.addEventListener('play', function() {
+                        document.getElementById('now-playing').textContent = `${songTitle} - ${songArtist}`;
+                    });
+                    
+                    audio.addEventListener('error', function() {
+                        console.error('Audio error:', audio.error);
+                        alert('Ошибка воспроизведения трека');
+                    });
+                    
+                    audio.play();
+                    currentSong = {
+                        url: blobUrl, 
+                        title: songTitle, 
+                        artist: songArtist, 
+                        cover: songCover || 'https://via.placeholder.com/50'
+                    };
+                    
+                    // Update player UI
+                    document.getElementById('now-playing-cover').src = currentSong.cover;
+                    document.getElementById('now-playing').textContent = currentSong.title;
+                    document.getElementById('now-playing-artist').textContent = currentSong.artist;
+                    document.getElementById('play-icon').classList.add('hidden');
+                    document.getElementById('pause-icon').classList.remove('hidden');
+                    
+                    // Setup progress tracking
+                    audio.addEventListener('timeupdate', updateProgress);
+                    audio.addEventListener('loadedmetadata', function() {
+                        document.getElementById('duration').textContent = formatTime(audio.duration);
+                    });
+                    
+                } catch (error) {
+                    console.error('Error loading audio:', error);
+                    alert('Ошибка загрузки трека');
+                }
             }
             
             function updateProgress() {
-                if (!sound || isSeeking) return;
+                if (!audio) return;
                 
-                const progress = document.getElementById('progress');
-                const currentTime = document.getElementById('current-time');
-                const duration = document.getElementById('duration');
-                
-                const seek = sound.seek() || 0;
-                const durationVal = sound.duration() || 1;
-                
-                progress.value = (seek / durationVal) * 100;
-                currentTime.textContent = formatTime(seek);
-                duration.textContent = formatTime(durationVal);
-                
-                if (sound.playing()) {
-                    requestAnimationFrame(updateProgress);
-                }
+                const progress = (audio.currentTime / audio.duration) * 100;
+                document.getElementById('progress').value = progress;
+                document.getElementById('current-time').textContent = formatTime(audio.currentTime);
             }
             
-            document.getElementById('play-pause').addEventListener('click', function() {
-                if (!sound) return;
+            function formatTime(seconds) {
+                const minutes = Math.floor(seconds / 60);
+                const secs = Math.floor(seconds % 60);
+                return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+            }
+            
+            // Play/Pause button
+            document.getElementById('play-pause').addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (!audio) return;
                 
-                if (sound.playing()) {
-                    sound.pause();
+                if (!audio.paused) {
+                    audio.pause();
+                    document.getElementById('play-icon').classList.remove('hidden');
+                    document.getElementById('pause-icon').classList.add('hidden');
                 } else {
-                    sound.play();
+                    audio.play();
+                    document.getElementById('play-icon').classList.add('hidden');
+                    document.getElementById('pause-icon').classList.remove('hidden');
                 }
             });
             
-            document.getElementById('progress').addEventListener('input', function() {
-                if (!sound || !sound.playing()) return;
-                
-                isSeeking = true;
-                const durationVal = sound.duration();
-                const seek = durationVal * (this.value / 100);
-                sound.seek(seek);
-                document.getElementById('current-time').textContent = formatTime(seek);
+            // Volume control
+            document.getElementById('volume').addEventListener('input', function(e) {
+                e.stopPropagation();
+                if (audio) {
+                    audio.volume = this.value;
+                }
             });
             
-            // Принудительное обновление прогресса после перемотки
-            setTimeout(() => {
-                isSeeking = false;
-                updateProgress();
-            }, 100);
+            // Progress seek handler
+            document.getElementById('progress').addEventListener('input', function(e) {
+                e.stopPropagation();
+                if (!audio) return;
+                
+                const seekTime = (audio.duration * this.value) / 100;
+                audio.currentTime = seekTime;
+            });
             
-            document.getElementById('volume').addEventListener('input', function() {
-                if (!sound) return;
-                sound.volume(this.value);
+            // Next/Prev buttons (placeholder functionality)
+            document.getElementById('next-btn').addEventListener('click', function() {
+                // Implement next song logic here
+            });
+            
+            document.getElementById('prev-btn').addEventListener('click', function() {
+                // Implement previous song logic here
             });
         </script>
         <style>
@@ -220,23 +256,85 @@
                 background: #383838 !important;
                 box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
             }
-            .player-bar {
-                height: 80px;
-                border-top: 1px solid #333;
+            
+            #now-playing-cover {
+                width: 64px;
+                height: 64px;
+                min-width: 64px;
+                background-color: #383838;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
             }
-            input[type="range"] {
+            
+            #now-playing-cover img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+            
+            #player-controls {
+                background: rgba(40, 40, 40, 0.9);
+                backdrop-filter: blur(10px);
+                border-radius: 12px;
+                margin: 0 auto 16px;
+                padding: 12px 16px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                max-width: 800px;
+                width: calc(100% - 32px);
+                position: fixed;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+
+            #progress {
                 -webkit-appearance: none;
                 height: 4px;
-                background: #535353;
+                background: rgba(255, 255, 255, 0.2);
                 border-radius: 2px;
             }
-            input[type="range"]::-webkit-slider-thumb {
+
+            #progress::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 16px;
+                height: 16px;
+                background: white;
+                border-radius: 50%;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            }
+
+            #play-pause {
+                background: white;
+                border-radius: 50%;
+                width: 44px;
+                height: 44px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            #volume {
+                -webkit-appearance: none;
+                height: 4px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 2px;
+            }
+
+            #volume::-webkit-slider-thumb {
                 -webkit-appearance: none;
                 width: 12px;
                 height: 12px;
-                background: #fff;
+                background: white;
                 border-radius: 50%;
-                cursor: pointer;
+            }
+            
+            #current-time, #duration {
+                width: 40px;
+                text-align: center;
+                font-size: 12px;
             }
         </style>
     </body>

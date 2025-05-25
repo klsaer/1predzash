@@ -4,9 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Playlist extends Model
+class Tag extends Model
 {
-    protected $fillable = ['name', 'user_id'];
+    protected $fillable = [
+        'name',
+        'user_id'
+    ];
 
     public function user()
     {
@@ -18,8 +21,8 @@ class Playlist extends Model
         return $this->belongsToMany(Song::class);
     }
 
-    public function tags()
+    public function playlists()
     {
-        return $this->belongsToMany(Tag::class, 'playlist_tag', 'playlist_id', 'tag_id');
+        return $this->belongsToMany(Playlist::class, 'playlist_tag', 'tag_id', 'playlist_id');
     }
 }

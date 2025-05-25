@@ -52,7 +52,7 @@
                                 <button type="submit" class="text-gray-400 hover:text-white">Выход</button>
                             </form>
                         </li>
-                        <li><a href="#" class="text-gray-400 hover:text-white">Поиск</a></li>
+                        <li><a href="{{ route('songs.search') }}" class="text-gray-400 hover:text-white">Поиск</a></li>
                         <li><a href="#" class="text-gray-400 hover:text-white">Моя медиатека</a></li>
                     </ul>
                 </nav>
